@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { addDoc, collection, onSnapshot, query } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { db } from '../constants/firebase';
 
 interface Habit {
   id: string;
@@ -13,17 +15,39 @@ export default function HomeScreen() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [newHabit, setNewHabit] = useState('');
 
-  const addHabit = () => {
+  useEffect(() => {
+    const q = query(collection(db, 'habits'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const habitsArr: Habit[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        habitsArr.push({
+          id: doc.id,
+          name: data.name,
+          completed: data.completed,
+          streak: data.streak,
+          lastCompleted: data.lastCompleted,
+        });
+      });
+      setHabits(habitsArr);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const addHabit = async () => {
     if (newHabit.trim()) {
-      const habit: Habit = {
-        id: Date.now().toString(),
+      const habit = {
         name: newHabit.trim(),
         completed: false,
         streak: 0,
         lastCompleted: '',
       };
-      setHabits([...habits, habit]);
-      setNewHabit('');
+      try {
+        await addDoc(collection(db, 'habits'), habit);
+        setNewHabit('');
+      } catch (error) {
+        console.error('Error adding habit:', error);
+      }
     }
   };
 
