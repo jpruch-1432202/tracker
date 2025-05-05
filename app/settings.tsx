@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useHabits } from '../hooks/useHabits';
 
 export default function SettingsScreen() {
   const { habits, addHabit, deleteHabit } = useHabits();
   const [newHabitName, setNewHabitName] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleAddHabit = () => {
     if (newHabitName.trim()) {
@@ -25,97 +26,169 @@ export default function SettingsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => deleteHabit(habitId),
+          onPress: async () => {
+            setDeletingId(habitId);
+            try {
+              await deleteHabit(habitId);
+            } catch (err) {
+              Alert.alert('Error', 'Failed to delete habit.');
+            } finally {
+              setDeletingId(null);
+            }
+          },
         },
       ],
     );
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.addHabitContainer}>
+    <SafeAreaView style={styles.safeArea}>
+      <Text style={styles.title}>Settings</Text>
+      <View style={styles.addHabitCard}>
         <TextInput
           style={styles.input}
-          placeholder="Enter new habit name"
+          placeholder="Enter a new habit..."
           value={newHabitName}
           onChangeText={setNewHabitName}
+          placeholderTextColor="#BFC0C0"
         />
         <TouchableOpacity style={styles.addButton} onPress={handleAddHabit}>
           <Text style={styles.addButtonText}>Add Habit</Text>
         </TouchableOpacity>
       </View>
-
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={styles.habitItem}>
+          <View style={styles.habitCard}>
             <Text style={styles.habitName}>{item.name}</Text>
             <TouchableOpacity
-              style={styles.deleteButton}
+              style={[styles.deleteButton, deletingId === item.id && { opacity: 0.6 }]}
               onPress={() => handleDeleteHabit(item.id)}
+              disabled={deletingId === item.id}
             >
-              <Text style={styles.deleteButtonText}>Delete</Text>
+              {deletingId === item.id ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}
         style={styles.habitList}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#F6F8FC',
   },
-  addHabitContainer: {
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginTop: 32,
+    marginBottom: 24,
+    alignSelf: 'center',
+    color: '#22223B',
+    letterSpacing: 0.5,
+  },
+  addHabitCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    shadowColor: '#22223B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E0E1DD',
     flexDirection: 'row',
-    marginBottom: 20,
+    alignItems: 'center',
   },
   input: {
     flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
+    height: 44,
+    borderWidth: 0,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    backgroundColor: '#F6F8FC',
+    fontSize: 16,
+    color: '#22223B',
+    marginRight: 12,
   },
   addButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 15,
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 8,
     justifyContent: 'center',
-    borderRadius: 5,
+    alignItems: 'center',
+    shadowColor: '#4A90E2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
   },
   addButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.2,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
   habitList: {
     flex: 1,
   },
-  habitItem: {
+  habitCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    justifyContent: 'space-between',
+    shadowColor: '#22223B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E0E1DD',
   },
   habitName: {
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#4A4E69',
+    letterSpacing: 0.2,
   },
   deleteButton: {
     backgroundColor: '#FF3B30',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginLeft: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
   },
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
 }); 

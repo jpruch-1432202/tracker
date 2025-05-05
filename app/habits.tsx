@@ -1,47 +1,66 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useHabits } from '../hooks/useHabits';
 
 export default function HabitsScreen() {
   const { habits } = useHabits();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <Text style={styles.title}>My Habits</Text>
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={styles.habitItem}>
+          <View style={styles.habitCard}>
             <Text style={styles.habitName}>{item.name}</Text>
           </View>
         )}
         style={styles.habitList}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#F6F8FC',
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginTop: 32,
+    marginBottom: 24,
+    alignSelf: 'center',
+    color: '#22223B',
+    letterSpacing: 0.5,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
   habitList: {
     flex: 1,
   },
-  habitItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  habitCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#22223B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E0E1DD',
   },
   habitName: {
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#4A4E69',
+    letterSpacing: 0.2,
   },
 }); 

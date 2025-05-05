@@ -22,3 +22,9 @@
 - Add habits to different categories
 - Support different habit frequencies (Daily, weekly, specific days)
 
+
+## Design Improvements
+- Fire emoji for the streaks
+- Click on a habit to see a calendar view of success
+- Add an emoji to the habit name
+- Fix UI issues  
