@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
-import { useHabits } from '../hooks/useHabits';
+import { useAuth } from '../../hooks/useAuth';
+import { useHabits } from '../../hooks/useHabits';
 
 export default function SettingsScreen() {
   const { habits, addHabit, deleteHabit } = useHabits();
